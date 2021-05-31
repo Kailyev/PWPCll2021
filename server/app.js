@@ -1,43 +1,48 @@
+/* eslint-disable no-console */
 import createError from 'http-errors';
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
-import indexRouter from './routes/index';
-import usersRouter from './routes/users';
+import indexRouter from '@s-routes/index';
+import usersRouter from '@s-routes/users';
 
-//importar webpack modules
+// importar webpack modules
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackDevConfig from '../webpack.dev.config';
 
-
-//Consultar el modo en que se esta ejecutando la aplicación
+// Consultar el modo en que se esta ejecutando la aplicación
 const env = process.env.NODE_ENV || 'development';
 
 // se crea la aplicacion express
-var app = express();
+const app = express();
 
-//verificando el modo de ejecucion de la aplicacion
-if(env === 'development'){
+// verificando el modo de ejecucion de la aplicacion
+if (env === 'development') {
   console.log('>Excecuting in Development Mode: Webpack Hot Reloading');
-  //agregando ruta del HMR
-  //reload = true Habilita la recarga del frontend cuando hay cambios en el codigo fuente del frontend
-  //timeout=1000: tiempo de espera y recarga de la pagina 
-  webpackDevConfig.entry = ['webpack-hot-middleware/client?reload=true&timeout=1000', webpackDevConfig.entry];
-  //agregamos plugin
+  // agregando ruta del HMR
+  // reload = true Habilita la recarga del frontend cuando hay cambios en el codigo fuente del frontend
+  // timeout=1000: tiempo de espera y recarga de la pagina
+  webpackDevConfig.entry = [
+    'webpack-hot-middleware/client?reload=true&timeout=1000',
+    webpackDevConfig.entry,
+  ];
+  // agregamos plugin
   webpackDevConfig.plugins.push(new webpack.HotModuleReplacementPlugin());
-  //Crear el compilador de webpack
+  // Crear el compilador de webpack
   const compiler = webpack(webpackDevConfig);
-  //Agregando middleware a la cadena de middlewares de nuestra aplicacion
-  app.use(webpackDevMiddleware(compiler,{
-    publicPath: webpackDevConfig.output.publicPath
-  }));
-  //agregando webpack a Hot Middleware
+  // Agregando middleware a la cadena de middlewares de nuestra aplicacion
+  app.use(
+    webpackDevMiddleware(compiler, {
+      publicPath: webpackDevConfig.output.publicPath,
+    })
+  );
+  // agregando webpack a Hot Middleware
   app.use(webpackHotMiddleware(compiler));
-}else{
+} else {
   console.log('Excecuting in Production Mode');
 }
 
@@ -45,22 +50,22 @@ if(env === 'development'){
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-app.use(logger('dev')); 
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-/**/app.use(express.static(path.join(__dirname,'..','public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res) {
+app.use((err, req, res) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
