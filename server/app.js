@@ -4,10 +4,10 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import winston from 'winston';
+import winston from '@server/config/winston';
 
-import indexRouter from '@s-routes/index';
-import usersRouter from '@s-routes/users';
+// Importando el router principal
+import router from '@server/routes/index';
 
 // import configurations
 import configTemplateEngine from '@s-config/template-engine';
@@ -59,11 +59,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// instalando el enrrutador principal a la aplicacion express
+router.addRoutes();
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
+  // log
+  winston.error(
+    `Code: 404, Message: Page Not Fund, URL: ${req.originalUrl}, Method${req.method}`
+  );
   next(createError(404));
 });
 
@@ -72,6 +76,13 @@ app.use((err, req, res) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // Loggeando con Winston
+  winston.error(
+    `status: ${err.status || 500}, Message: ${err.message}, Method: ${
+      req.method
+    }, IP: ${req.ip}`
+  );
 
   // render the error page
   res.status(err.status || 500);

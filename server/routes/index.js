@@ -1,19 +1,16 @@
-var express = require('express');
-var router = express.Router();
+import { Router } from 'express';
+// importando el router de Home
+import homeRouter from './home';
+// Importando router de users
+import userRouter from './user';
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express', author: 'Karla Enriquez Francisco', appName: 'WebApp' });
-});
+const router = new Router();
 
-/*Agregando nueva ruta */
-router.get('/greeting', function(req, res, next){
-  res.send('Hola campeon del fullstack web')
-})
+//Agregando las rutas a la aplicación
+const addRouter = (app) => {
+    app.use('/', homeRouter);
+    app.use('/user', userRouter);
 
-/*Agregando nueva ruta 2 */
-router.get('/prueba', function(req, res, next){
-  res.status(200).json({message: 'Hola campeon del fullstack web'})
-})
-
-module.exports = router;
+export default {
+    addRoutes,
+};
