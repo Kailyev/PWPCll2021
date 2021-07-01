@@ -60,7 +60,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // instalando el enrrutador principal a la aplicacion express
-router.addRoutes();
+router.addRoutes(app);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
